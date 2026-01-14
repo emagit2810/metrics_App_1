@@ -1,0 +1,5 @@
+{
+  "name": "PromptBase",
+  "description": "A Notion-style workspace designed for Prompt Engineering, Project Management, and Habit Tracking with dark mode aesthetics.",
+  "requestFramePermissions": []
+}

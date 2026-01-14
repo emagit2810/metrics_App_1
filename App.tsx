@@ -1,37 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import './App.css';
-
-function App() {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    // Simulate initial load or perform necessary initialization
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Remove blocking return - move loader inside layout instead
-  return (
-    <Router>
-      <div className="app-container">
-        <Sidebar />
-        <div className="main-content">
-          {!isLoaded && <div className="loader">Loading...</div>}
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
-  );
-}
-
-export default App;
+import React, { useState, useEffect } from 'react';
+import { Sidebar } from './components/Sidebar';
+import { PromptEditor } from './components/PromptEditor';
+import { Stats } from './components/Stats';
+import { ProjectList } from './components/ProjectList';
+import { CalendarView } from './components/CalendarView';
+import { HabitsView } from './components/HabitsView';
+import {
+  PromptEntry,
+  Project,
+  Habit,
+  ViewState,
+  PromptFolder,
+  HabitFrequency
+} from './types';
+import {
+  INITIAL_PROMPTS,
+  INITIAL_PROJECTS,
+  INITIAL_HABITS,
+  INITIAL_FOLDERS,
+  PROJECT

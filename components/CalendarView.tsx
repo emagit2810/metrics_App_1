@@ -84,7 +84,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ projects, onSelectPr
     };
 
     return (
-        <div className="p-8 max-w-7xl mx-auto h-[calc(100vh-80px)] flex flex-col relative select-none">
+        <div className="w-full h-[calc(100vh-80px)] flex flex-col px-6 py-8 lg:px-10 xl:px-14 2xl:px-20 relative select-none">
             <div className="flex items-center justify-between mb-6 shrink-0">
                 <div>
                     <h1 className="text-4xl font-black text-notion-text flex items-center gap-4">

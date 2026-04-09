@@ -1,7 +1,7 @@
 
 export class PromptBaseDB {
   private dbName = 'PromptBaseDB';
-  private version = 1;
+  private version = 2;
 
   private openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -13,6 +13,9 @@ export class PromptBaseDB {
         if (!db.objectStoreNames.contains('folders')) db.createObjectStore('folders', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('projects')) db.createObjectStore('projects', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('habits')) db.createObjectStore('habits', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('weeklyBlocks')) db.createObjectStore('weeklyBlocks', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('weeklyAchievements')) db.createObjectStore('weeklyAchievements', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('sprintBoards')) db.createObjectStore('sprintBoards', { keyPath: 'id' });
       };
 
       request.onsuccess = () => resolve(request.result);

@@ -84,4 +84,45 @@ export interface Habit {
   comments: string;
 }
 
-export type ViewState = 'dashboard' | 'prompts' | 'projects' | 'calendar' | 'habits';
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
+export interface WeeklyTimeBlock {
+  id: string;
+  title: string;
+  dayIndex: number;
+  startMinutes: number;
+  durationMinutes: number;
+  color: string;
+  notes?: string;
+}
+
+export interface WeeklyAchievement {
+  id: string;
+  title: string;
+  color: string;
+  items: ChecklistItem[];
+}
+
+export type SprintBoardId = 'weekly' | 'biweekly' | 'monthly';
+
+export interface SprintBoard {
+  id: SprintBoardId;
+  title: string;
+  color: string;
+  description: string;
+  isCollapsed: boolean;
+  items: ChecklistItem[];
+}
+
+export type ViewState =
+  | 'dashboard'
+  | 'prompts'
+  | 'projects'
+  | 'calendar'
+  | 'weekly'
+  | 'sprintDashboard'
+  | 'habits';

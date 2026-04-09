@@ -1,5 +1,13 @@
 
-import { PromptEntry, Project, Habit, PromptFolder } from './types';
+import {
+  PromptEntry,
+  Project,
+  Habit,
+  PromptFolder,
+  WeeklyTimeBlock,
+  WeeklyAchievement,
+  SprintBoard
+} from './types';
 
 export const TAG_OPTIONS = [
   'Software', 'Solución Problemas', 'Estudiar', 'Planificar', 'Ideas', 
@@ -103,4 +111,50 @@ export const PROJECT_COLORS = [
     '#0891b2', '#06b6d4', '#22d3ee', // Cyans
     '#eab308', '#facc15', '#fef08a', // Yellows
     '#4b5563', '#9ca3af', '#e5e7eb', // Grays/Silver
+];
+
+export const WEEKLY_DAY_LABELS = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
+
+export const WEEKLY_DAY_FULL_LABELS = [
+  'Lunes',
+  'Martes',
+  'Miercoles',
+  'Jueves',
+  'Viernes',
+  'Sabado'
+];
+
+export const WEEKLY_DURATION_OPTIONS = [15, 30, 60, 120];
+
+export const BOGOTA_TIMEZONE = 'America/Bogota';
+
+export const INITIAL_WEEKLY_BLOCKS: WeeklyTimeBlock[] = [];
+
+export const INITIAL_WEEKLY_ACHIEVEMENTS: WeeklyAchievement[] = [];
+
+export const INITIAL_SPRINT_BOARDS: SprintBoard[] = [
+  {
+    id: 'weekly',
+    title: 'Sprint semanal',
+    color: '#2563eb',
+    description: 'Objetivos de la semana activa.',
+    isCollapsed: false,
+    items: []
+  },
+  {
+    id: 'biweekly',
+    title: 'Sprint quincenal',
+    color: '#f97316',
+    description: 'Objetivos del bloque 1-15 o 16-fin de mes.',
+    isCollapsed: false,
+    items: []
+  },
+  {
+    id: 'monthly',
+    title: 'Sprint mensual',
+    color: '#22c55e',
+    description: 'Objetivos macro del mes actual.',
+    isCollapsed: false,
+    items: []
+  }
 ];

@@ -145,7 +145,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({ projects, activeProjec
     const activeBottleneckProject = projects.find(p => p.id === bottleneckProjectId);
 
     return (
-        <div className="p-8 max-w-5xl mx-auto pb-20 relative">
+        <div className="w-full h-full overflow-y-auto px-6 py-8 lg:px-10 xl:px-14 2xl:px-20 pb-20 relative">
              <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold text-notion-text">Projects & Objectives</h1>
                 <button onClick={onAddProject} className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded shadow flex items-center gap-2">

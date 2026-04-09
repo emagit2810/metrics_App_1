@@ -1,6 +1,20 @@
 
 import React, { useState } from 'react';
-import { LayoutDashboard, Sparkles, FolderKanban, CheckSquare, Search, Settings, PlusCircle, ChevronsLeft, Menu, CalendarDays, ChevronDown, ChevronRight, Hash, ArrowLeftFromLine, ArrowRightFromLine } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Sparkles,
+  FolderKanban,
+  CheckSquare,
+  Search,
+  Settings,
+  ChevronsLeft,
+  CalendarDays,
+  ChevronDown,
+  ChevronRight,
+  Hash,
+  ArrowRightFromLine,
+  Calendar
+} from 'lucide-react';
 import { ViewState, Project } from '../types';
 
 interface SidebarProps {
@@ -134,6 +148,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <NavItem view="calendar" icon={CalendarDays} label="Calendar" />
+        <NavItem view="weekly" icon={Calendar} label="Semanal" />
+        <NavItem
+          view="sprintDashboard"
+          icon={LayoutDashboard}
+          label="Sprint Dashboard"
+        />
         <NavItem view="habits" icon={CheckSquare} label="Habits" />
       </div>
       

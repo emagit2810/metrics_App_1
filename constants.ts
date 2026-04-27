@@ -139,6 +139,7 @@ export const INITIAL_SPRINT_BOARDS: SprintBoard[] = [
     color: '#2563eb',
     description: 'Objetivos de la semana activa.',
     isCollapsed: false,
+    estimatedHours: 0,
     items: []
   },
   {
@@ -147,6 +148,7 @@ export const INITIAL_SPRINT_BOARDS: SprintBoard[] = [
     color: '#f97316',
     description: 'Objetivos del bloque 1-15 o 16-fin de mes.',
     isCollapsed: false,
+    estimatedHours: 0,
     items: []
   },
   {
@@ -155,6 +157,7 @@ export const INITIAL_SPRINT_BOARDS: SprintBoard[] = [
     color: '#22c55e',
     description: 'Objetivos macro del mes actual.',
     isCollapsed: false,
+    estimatedHours: 0,
     items: []
   }
 ];

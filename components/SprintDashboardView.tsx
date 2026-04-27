@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Clock,
   ExternalLink,
   Plus,
   Target,
@@ -29,6 +30,20 @@ const getBogotaNow = () =>
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+const parseHours = (value: string) => {
+  const parsed = Number(value.replace(',', '.'));
+  if (!Number.isFinite(parsed)) return 0;
+  return clamp(parsed, 0, 999);
+};
+
+const readHours = (value: unknown) =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.max(value, 0) : 0;
+
+const formatHours = (hours: number) =>
+  `${readHours(hours).toLocaleString('es-CO', {
+    maximumFractionDigits: 2
+  })}h`;
 
 const getStartOfBogotaWeek = (date: Date) => {
   const start = new Date(date);
@@ -90,6 +105,9 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
   const [bogotaNow, setBogotaNow] = useState(getBogotaNow());
   const [activeBoardId, setActiveBoardId] = useState<SprintBoardId | null>(null);
   const [newItemDrafts, setNewItemDrafts] = useState<Record<string, string>>({});
+  const [newItemHourDrafts, setNewItemHourDrafts] = useState<
+    Record<string, string>
+  >({});
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -145,9 +163,34 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
     );
   };
 
+  const getBoardMetrics = (board: SprintBoard) => {
+    const totalCount = board.items.length;
+    const completedCount = board.items.filter(item => item.done).length;
+    const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+    const taskHours = board.items.reduce(
+      (total, item) => total + readHours(item.estimatedHours),
+      0
+    );
+    const completedTaskHours = board.items.reduce(
+      (total, item) =>
+        item.done ? total + readHours(item.estimatedHours) : total,
+      0
+    );
+
+    return {
+      completedCount,
+      totalCount,
+      progress,
+      sprintHours: readHours(board.estimatedHours),
+      taskHours,
+      completedTaskHours
+    };
+  };
+
   const addItem = (boardId: SprintBoardId) => {
     const text = newItemDrafts[boardId]?.trim();
     if (!text) return;
+    const estimatedHours = parseHours(newItemHourDrafts[boardId] || '0');
 
     updateBoard(boardId, board => ({
       ...board,
@@ -156,7 +199,8 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
         {
           id: `${boardId}-${Date.now()}`,
           text,
-          done: false
+          done: false,
+          estimatedHours
         }
       ]
     }));
@@ -165,6 +209,90 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
       ...currentDrafts,
       [boardId]: ''
     }));
+    setNewItemHourDrafts(currentDrafts => ({
+      ...currentDrafts,
+      [boardId]: ''
+    }));
+  };
+
+  const renderBoardProgress = (board: SprintBoard) => {
+    const metrics = getBoardMetrics(board);
+
+    return (
+      <div className="mt-5 space-y-3">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-notion-muted">
+              Avance de sub objetivos
+            </div>
+            <div className="mt-1 text-xs text-notion-muted">
+              {metrics.completedCount}/{metrics.totalCount} logrados
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-lg font-black text-white">
+              {Math.round(metrics.progress)}%
+            </div>
+            <div className="text-[11px] text-notion-muted">
+              {formatHours(metrics.completedTaskHours)} hechas
+            </div>
+          </div>
+        </div>
+
+        <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${metrics.progress}%`,
+              backgroundColor: board.color
+            }}
+          />
+        </div>
+
+        <div className="grid gap-2 border-y border-white/5 py-3 text-xs sm:grid-cols-3">
+          <div>
+            <span className="block text-notion-muted">Plan sprint</span>
+            <strong className="mt-1 block text-white">
+              {formatHours(metrics.sprintHours)}
+            </strong>
+          </div>
+          <div>
+            <span className="block text-notion-muted">Tareas</span>
+            <strong className="mt-1 block text-white">
+              {formatHours(metrics.taskHours)}
+            </strong>
+          </div>
+          <div>
+            <span className="block text-notion-muted">Pendiente</span>
+            <strong className="mt-1 block text-white">
+              {formatHours(Math.max(metrics.taskHours - metrics.completedTaskHours, 0))}
+            </strong>
+          </div>
+        </div>
+
+        <label className="flex min-h-11 items-center gap-2 rounded-xl border border-notion-border bg-[#181818] px-3 py-2 text-xs text-notion-muted focus-within:border-white/30">
+          <Clock size={14} />
+          <span className="shrink-0">Horas del sprint</span>
+          <input
+            type="number"
+            min="0"
+            step="0.25"
+            defaultValue={metrics.sprintHours || ''}
+            onBlur={event =>
+              updateBoard(board.id, current => ({
+                ...current,
+                estimatedHours: parseHours(event.target.value)
+              }))
+            }
+            onKeyDown={event => {
+              if (event.key === 'Enter') event.currentTarget.blur();
+            }}
+            placeholder="0"
+            className="min-w-0 flex-1 bg-transparent text-right text-sm font-bold text-white outline-none"
+          />
+        </label>
+      </div>
+    );
   };
 
   const renderBoardItems = (board: SprintBoard, compact: boolean) => (
@@ -177,7 +305,7 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
         board.items.map(item => (
           <div
             key={item.id}
-            className="flex items-center gap-3 rounded-xl border border-notion-border bg-[#181818] px-3 py-3"
+            className="flex flex-wrap items-center gap-3 rounded-xl border border-notion-border bg-[#181818] px-3 py-3"
           >
             <button
               type="button"
@@ -210,12 +338,41 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
                   )
                 }))
               }
-              className={`flex-1 bg-transparent outline-none ${
+              className={`min-w-[130px] flex-1 bg-transparent outline-none ${
                 compact ? 'text-sm' : 'text-base'
               } ${
                 item.done ? 'text-notion-muted line-through' : 'text-white'
               }`}
             />
+
+            <label className="flex h-9 w-[5.5rem] shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-black/20 px-2 text-[11px] text-notion-muted focus-within:border-white/30">
+              <Clock size={13} />
+              <input
+                type="number"
+                min="0"
+                step="0.25"
+                defaultValue={readHours(item.estimatedHours) || ''}
+                onBlur={event =>
+                  updateBoard(board.id, current => ({
+                    ...current,
+                    items: current.items.map(currentItem =>
+                      currentItem.id === item.id
+                        ? {
+                            ...currentItem,
+                            estimatedHours: parseHours(event.target.value)
+                          }
+                      : currentItem
+                    )
+                  }))
+                }
+                onKeyDown={event => {
+                  if (event.key === 'Enter') event.currentTarget.blur();
+                }}
+                placeholder="0"
+                aria-label="Horas estimadas del sub objetivo"
+                className="min-w-0 flex-1 bg-transparent text-right font-semibold text-white outline-none"
+              />
+            </label>
 
             <button
               type="button"
@@ -235,7 +392,7 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
         ))
       )}
 
-      <div className="flex gap-3">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_5.75rem_auto]">
         <input
           value={newItemDrafts[board.id] || ''}
           onChange={event =>
@@ -250,6 +407,27 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
           placeholder="Agregar sub objetivo..."
           className="flex-1 rounded-xl border border-notion-border bg-[#181818] px-4 py-3 text-sm text-white outline-none focus:border-white/30"
         />
+        <label className="flex min-h-12 items-center gap-2 rounded-xl border border-notion-border bg-[#181818] px-3 text-xs text-notion-muted focus-within:border-white/30">
+          <Clock size={14} />
+          <input
+            type="number"
+            min="0"
+            step="0.25"
+            value={newItemHourDrafts[board.id] || ''}
+            onChange={event =>
+              setNewItemHourDrafts(currentDrafts => ({
+                ...currentDrafts,
+                [board.id]: event.target.value
+              }))
+            }
+            onKeyDown={event => {
+              if (event.key === 'Enter') addItem(board.id);
+            }}
+            placeholder="Horas"
+            aria-label="Horas estimadas para el nuevo sub objetivo"
+            className="min-w-0 flex-1 bg-transparent text-white outline-none"
+          />
+        </label>
         <button
           type="button"
           onClick={() => addItem(board.id)}
@@ -350,8 +528,7 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
 
         <div className="grid gap-6 xl:grid-cols-3">
           {boards.map(board => {
-            const pendingCount = board.items.filter(item => !item.done).length;
-            const totalCount = board.items.length;
+            const metrics = getBoardMetrics(board);
             const isActive = activeBoardId === board.id;
 
             return (
@@ -359,9 +536,9 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
                 key={board.id}
                 className="rounded-3xl border bg-[#171717] p-5 transition-all"
                 style={{
-                  borderColor: `${board.color}${pendingCount > 0 ? 'aa' : '44'}`,
+                  borderColor: `${board.color}${metrics.totalCount > 0 ? 'aa' : '44'}`,
                   boxShadow:
-                    pendingCount > 0
+                    metrics.totalCount > 0
                       ? `0 24px 70px ${board.color}22`
                       : '0 10px 30px rgba(0,0,0,0.18)'
                 }}
@@ -394,7 +571,7 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
                         color: board.color
                       }}
                     >
-                      {pendingCount}/{totalCount}
+                      {metrics.completedCount}/{metrics.totalCount}
                     </span>
                     <button
                       type="button"
@@ -425,6 +602,8 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {renderBoardProgress(board)}
 
                 {!board.isCollapsed && (
                   <div className="mt-5">{renderBoardItems(board, true)}</div>
@@ -478,6 +657,7 @@ export const SprintDashboardView: React.FC<SprintDashboardViewProps> = ({
                 </div>
 
                 <div className="min-h-0 flex-1 overflow-auto bg-[#151515] px-6 py-6 custom-scrollbar">
+                  <div className="mb-6">{renderBoardProgress(board)}</div>
                   {renderBoardItems(board, false)}
                 </div>
               </div>

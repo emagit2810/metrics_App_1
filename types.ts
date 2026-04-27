@@ -88,6 +88,7 @@ export interface ChecklistItem {
   id: string;
   text: string;
   done: boolean;
+  estimatedHours?: number;
 }
 
 export interface WeeklyTimeBlock {
@@ -115,6 +116,7 @@ export interface SprintBoard {
   color: string;
   description: string;
   isCollapsed: boolean;
+  estimatedHours: number;
   items: ChecklistItem[];
 }
 

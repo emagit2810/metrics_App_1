@@ -39,7 +39,15 @@ const normalizeSprintBoards = (boards: SprintBoard[]) =>
     return {
       ...defaultBoard,
       ...savedBoard,
-      items: savedBoard.items || []
+      estimatedHours:
+        typeof savedBoard.estimatedHours === 'number'
+          ? savedBoard.estimatedHours
+          : defaultBoard.estimatedHours,
+      items: (savedBoard.items || []).map(item => ({
+        ...item,
+        estimatedHours:
+          typeof item.estimatedHours === 'number' ? item.estimatedHours : 0
+      }))
     };
   });
 
